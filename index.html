@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>课后复习成长站</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="bg-shape bg-shape-a" aria-hidden="true"></div>
+    <div class="bg-shape bg-shape-b" aria-hidden="true"></div>
+
+    <main class="app">
+      <header class="hero">
+        <p class="eyebrow">After School Hub</p>
+        <h1>课后复习成长站</h1>
+        <p class="subtitle">面向家长与学生的复习、打卡、微课与练习一体化学习平台</p>
+        <div class="hero-stats">
+          <article>
+            <span id="streak-days">0</span>
+            <p>连续打卡天数</p>
+          </article>
+          <article>
+            <span id="total-minutes">0</span>
+            <p>累计学习分钟</p>
+          </article>
+          <article>
+            <span id="today-status">未打卡</span>
+            <p>今日状态</p>
+          </article>
+        </div>
+      </header>
+
+      <nav class="tabs" aria-label="功能导航">
+        <button class="tab is-active" data-tab="dashboard" type="button">学习看板</button>
+        <button class="tab" data-tab="checkin" type="button">打卡任务</button>
+        <button class="tab" data-tab="micro" type="button">微课观看</button>
+        <button class="tab" data-tab="practice" type="button">互动练习</button>
+      </nav>
+
+      <section class="panel" id="dashboard" data-panel>
+        <h2>学习看板</h2>
+        <div class="grid two">
+          <article class="card">
+            <h3>本周目标</h3>
+            <ul>
+              <li>复习单词 60 个</li>
+              <li>完成语法练习 3 次</li>
+              <li>观看微课 4 节</li>
+            </ul>
+          </article>
+          <article class="card">
+            <h3>家长提示</h3>
+            <ul>
+              <li>每天固定 20-30 分钟学习时段</li>
+              <li>先复习错题，再完成新任务</li>
+              <li>每周一次亲子学习复盘</li>
+            </ul>
+          </article>
+        </div>
+
+        <article class="card progress">
+          <h3>今日学习进度</h3>
+          <div class="progress-track" aria-label="学习进度条">
+            <div id="progress-bar" class="progress-fill"></div>
+          </div>
+          <p id="progress-text">今日任务完成度 0%</p>
+        </article>
+      </section>
+
+      <section class="panel hidden" id="checkin" data-panel>
+        <h2>打卡任务</h2>
+        <div class="card">
+          <p>完成以下任务并点击打卡，系统将自动累计学习分钟和连续打卡。</p>
+          <div class="task-list" id="task-list"></div>
+          <div class="actions">
+            <button id="checkin-btn" class="primary" type="button">完成今日打卡</button>
+            <button id="reset-today-btn" type="button">重置今日任务</button>
+          </div>
+          <p id="checkin-msg" class="feedback"></p>
+        </div>
+      </section>
+
+      <section class="panel hidden" id="micro" data-panel>
+        <h2>微课观看</h2>
+        <div class="grid two" id="micro-list"></div>
+      </section>
+
+      <section class="panel hidden" id="practice" data-panel>
+        <h2>互动练习</h2>
+        <div class="subtabs" aria-label="练习类型">
+          <button class="subtab is-active" data-practice="word" type="button">单词游戏</button>
+          <button class="subtab" data-practice="grammar" type="button">语法练习</button>
+          <button class="subtab" data-practice="spelling" type="button">拼写挑战</button>
+        </div>
+
+        <section id="practice-word" class="practice-panel">
+          <article class="card">
+            <h3>单词配对游戏</h3>
+            <p>点击英文单词，再点击对应中文释义完成配对。</p>
+            <div id="match-board" class="match-board"></div>
+            <p id="match-msg" class="feedback"></p>
+          </article>
+        </section>
+
+        <section id="practice-grammar" class="practice-panel hidden">
+          <article class="card">
+            <h3>语法选择题</h3>
+            <p id="grammar-question"></p>
+            <div id="grammar-options" class="option-list"></div>
+            <p id="grammar-msg" class="feedback"></p>
+            <button id="next-grammar-btn" type="button">下一题</button>
+          </article>
+        </section>
+
+        <section id="practice-spelling" class="practice-panel hidden">
+          <article class="card">
+            <h3>单词拼写</h3>
+            <p id="spelling-hint"></p>
+            <div class="actions">
+              <input id="spelling-input" type="text" placeholder="请输入英文单词" />
+              <button id="spelling-submit" class="primary" type="button">提交</button>
+              <button id="next-spelling-btn" type="button">换一个</button>
+            </div>
+            <p id="spelling-msg" class="feedback"></p>
+          </article>
+        </section>
+      </section>
+    </main>
+
+    <script type="module" src="./src/main.mjs"></script>
+  </body>
+</html>

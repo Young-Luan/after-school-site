@@ -1,0 +1,393 @@
+const STORAGE_KEY = 'after-school-hub-v1';
+
+const LESSONS = [
+  { title: '微课1：自然拼读基础', duration: 8, topic: '英语单词' },
+  { title: '微课2：一般现在时', duration: 10, topic: '语法' },
+  { title: '微课3：高频词拼写', duration: 7, topic: '拼写' },
+  { title: '微课4：阅读理解技巧', duration: 12, topic: '阅读' }
+];
+
+const DAILY_TASKS = [
+  { id: 'word', label: '完成 15 个单词复习', minutes: 10 },
+  { id: 'grammar', label: '完成 5 道语法题', minutes: 8 },
+  { id: 'video', label: '观看 1 节微课', minutes: 12 }
+];
+
+const WORD_PAIRS = [
+  ['apple', '苹果'],
+  ['bridge', '桥'],
+  ['quiet', '安静的'],
+  ['travel', '旅行']
+];
+
+const GRAMMAR_QUESTIONS = [
+  {
+    q: 'She ___ to school every day.',
+    options: ['go', 'goes', 'going'],
+    answer: 1
+  },
+  {
+    q: 'They ___ playing football now.',
+    options: ['is', 'am', 'are'],
+    answer: 2
+  },
+  {
+    q: 'I have two ___.',
+    options: ['book', 'books', 'bookes'],
+    answer: 1
+  }
+];
+
+const SPELLING_WORDS = [
+  { hint: '意思：图书馆', word: 'library' },
+  { hint: '意思：重要的', word: 'important' },
+  { hint: '意思：漂亮的', word: 'beautiful' }
+];
+
+const state = loadState();
+let grammarIndex = 0;
+let spellingIndex = 0;
+let currentMatchSelection = null;
+
+const refs = {
+  tabs: document.querySelectorAll('.tab'),
+  panels: document.querySelectorAll('[data-panel]'),
+  subtabs: document.querySelectorAll('.subtab'),
+  practicePanels: {
+    word: document.getElementById('practice-word'),
+    grammar: document.getElementById('practice-grammar'),
+    spelling: document.getElementById('practice-spelling')
+  },
+  streakDays: document.getElementById('streak-days'),
+  totalMinutes: document.getElementById('total-minutes'),
+  todayStatus: document.getElementById('today-status'),
+  progressBar: document.getElementById('progress-bar'),
+  progressText: document.getElementById('progress-text'),
+  taskList: document.getElementById('task-list'),
+  checkinBtn: document.getElementById('checkin-btn'),
+  resetTodayBtn: document.getElementById('reset-today-btn'),
+  checkinMsg: document.getElementById('checkin-msg'),
+  microList: document.getElementById('micro-list'),
+  matchBoard: document.getElementById('match-board'),
+  matchMsg: document.getElementById('match-msg'),
+  grammarQuestion: document.getElementById('grammar-question'),
+  grammarOptions: document.getElementById('grammar-options'),
+  grammarMsg: document.getElementById('grammar-msg'),
+  nextGrammarBtn: document.getElementById('next-grammar-btn'),
+  spellingHint: document.getElementById('spelling-hint'),
+  spellingInput: document.getElementById('spelling-input'),
+  spellingSubmit: document.getElementById('spelling-submit'),
+  nextSpellingBtn: document.getElementById('next-spelling-btn'),
+  spellingMsg: document.getElementById('spelling-msg')
+};
+
+init();
+
+function init() {
+  bindTabs();
+  bindCheckin();
+  bindPractice();
+  renderTasks();
+  renderDashboard();
+  renderMicroLessons();
+  resetMatchGame();
+  renderGrammar();
+  renderSpelling();
+}
+
+function todayKey() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function normalizeState(raw) {
+  const today = todayKey();
+  const safe = raw && typeof raw === 'object' ? raw : {};
+  const checkin = safe.checkin && typeof safe.checkin === 'object' ? safe.checkin : {};
+
+  if (checkin.date !== today) {
+    checkin.date = today;
+    checkin.tasksDone = [];
+    checkin.checked = false;
+  }
+
+  return {
+    totalMinutes: Number.isFinite(safe.totalMinutes) ? safe.totalMinutes : 0,
+    streakDays: Number.isFinite(safe.streakDays) ? safe.streakDays : 0,
+    lastCheckinDate: typeof safe.lastCheckinDate === 'string' ? safe.lastCheckinDate : '',
+    grammarCorrect: Number.isFinite(safe.grammarCorrect) ? safe.grammarCorrect : 0,
+    spellingCorrect: Number.isFinite(safe.spellingCorrect) ? safe.spellingCorrect : 0,
+    wordPairsDone: Number.isFinite(safe.wordPairsDone) ? safe.wordPairsDone : 0,
+    checkin
+  };
+}
+
+function loadState() {
+  try {
+    const raw = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+    return normalizeState(raw);
+  } catch {
+    return normalizeState({});
+  }
+}
+
+function saveState() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+
+function bindTabs() {
+  refs.tabs.forEach((tab) => {
+    tab.addEventListener('click', () => {
+      refs.tabs.forEach((t) => t.classList.remove('is-active'));
+      tab.classList.add('is-active');
+
+      const target = tab.dataset.tab;
+      refs.panels.forEach((panel) => {
+        panel.classList.toggle('hidden', panel.id !== target);
+      });
+    });
+  });
+}
+
+function bindCheckin() {
+  refs.taskList.addEventListener('change', (event) => {
+    const checkbox = event.target.closest('input[type="checkbox"]');
+    if (!checkbox) return;
+
+    const taskId = checkbox.dataset.taskId;
+    if (!taskId) return;
+
+    const set = new Set(state.checkin.tasksDone);
+    if (checkbox.checked) {
+      set.add(taskId);
+    } else {
+      set.delete(taskId);
+    }
+
+    state.checkin.tasksDone = [...set];
+    saveState();
+    renderDashboard();
+  });
+
+  refs.checkinBtn.addEventListener('click', () => {
+    if (state.checkin.checked) {
+      setFeedback(refs.checkinMsg, '今天已打卡，继续保持。', 'ok');
+      return;
+    }
+
+    const allDone = DAILY_TASKS.every((task) => state.checkin.tasksDone.includes(task.id));
+    if (!allDone) {
+      setFeedback(refs.checkinMsg, '请先完成全部今日任务。', 'bad');
+      return;
+    }
+
+    const today = todayKey();
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayKey = yesterday.toISOString().slice(0, 10);
+
+    state.checkin.checked = true;
+    state.totalMinutes += DAILY_TASKS.reduce((acc, item) => acc + item.minutes, 0);
+
+    if (state.lastCheckinDate === yesterdayKey) {
+      state.streakDays += 1;
+    } else if (state.lastCheckinDate !== today) {
+      state.streakDays = 1;
+    }
+
+    state.lastCheckinDate = today;
+    saveState();
+    renderDashboard();
+    setFeedback(refs.checkinMsg, '打卡成功，今天表现很棒。', 'ok');
+  });
+
+  refs.resetTodayBtn.addEventListener('click', () => {
+    state.checkin.tasksDone = [];
+    state.checkin.checked = false;
+    saveState();
+    renderTasks();
+    renderDashboard();
+    setFeedback(refs.checkinMsg, '已重置今日任务。', '');
+  });
+}
+
+function bindPractice() {
+  refs.subtabs.forEach((tab) => {
+    tab.addEventListener('click', () => {
+      refs.subtabs.forEach((t) => t.classList.remove('is-active'));
+      tab.classList.add('is-active');
+      const target = tab.dataset.practice;
+
+      Object.entries(refs.practicePanels).forEach(([key, panel]) => {
+        panel.classList.toggle('hidden', key !== target);
+      });
+    });
+  });
+
+  refs.nextGrammarBtn.addEventListener('click', () => {
+    grammarIndex = (grammarIndex + 1) % GRAMMAR_QUESTIONS.length;
+    renderGrammar();
+  });
+
+  refs.spellingSubmit.addEventListener('click', () => {
+    const answer = refs.spellingInput.value.trim().toLowerCase();
+    const word = SPELLING_WORDS[spellingIndex].word;
+
+    if (!answer) {
+      setFeedback(refs.spellingMsg, '请输入后再提交。', 'bad');
+      return;
+    }
+
+    if (answer === word) {
+      state.spellingCorrect += 1;
+      saveState();
+      setFeedback(refs.spellingMsg, '拼写正确。', 'ok');
+      renderDashboard();
+    } else {
+      setFeedback(refs.spellingMsg, `不正确，正确答案是 ${word}。`, 'bad');
+    }
+  });
+
+  refs.nextSpellingBtn.addEventListener('click', () => {
+    spellingIndex = (spellingIndex + 1) % SPELLING_WORDS.length;
+    refs.spellingInput.value = '';
+    renderSpelling();
+  });
+}
+
+function renderDashboard() {
+  refs.streakDays.textContent = String(state.streakDays);
+  refs.totalMinutes.textContent = String(state.totalMinutes);
+  refs.todayStatus.textContent = state.checkin.checked ? '已打卡' : '未打卡';
+
+  const done = state.checkin.tasksDone.length;
+  const percent = Math.round((done / DAILY_TASKS.length) * 100);
+  refs.progressBar.style.width = `${percent}%`;
+  refs.progressText.textContent = `今日任务完成度 ${percent}%`;
+}
+
+function renderTasks() {
+  refs.taskList.innerHTML = DAILY_TASKS.map((task) => {
+    const checked = state.checkin.tasksDone.includes(task.id) ? 'checked' : '';
+    return `
+      <label class="task-item">
+        <input type="checkbox" data-task-id="${task.id}" ${checked} />
+        <span>${task.label}（约 ${task.minutes} 分钟）</span>
+      </label>
+    `;
+  }).join('');
+}
+
+function renderMicroLessons() {
+  refs.microList.innerHTML = LESSONS.map((lesson) => {
+    return `
+      <article class="card lesson">
+        <h3>${lesson.title}</h3>
+        <p class="meta">主题：${lesson.topic} | 时长：${lesson.duration} 分钟</p>
+        <button type="button" data-watch="${lesson.title}">标记为已观看</button>
+      </article>
+    `;
+  }).join('');
+
+  refs.microList.addEventListener('click', (event) => {
+    const btn = event.target.closest('button[data-watch]');
+    if (!btn) return;
+
+    state.checkin.tasksDone = Array.from(new Set([...state.checkin.tasksDone, 'video']));
+    saveState();
+    renderTasks();
+    renderDashboard();
+  });
+}
+
+function setFeedback(el, text, cls) {
+  el.textContent = text;
+  el.classList.remove('ok', 'bad');
+  if (cls) {
+    el.classList.add(cls);
+  }
+}
+
+function resetMatchGame() {
+  const english = WORD_PAIRS.map((item, index) => ({ id: `e-${index}`, pair: index, text: item[0] }));
+  const chinese = WORD_PAIRS
+    .map((item, index) => ({ id: `c-${index}`, pair: index, text: item[1] }))
+    .sort(() => Math.random() - 0.5);
+
+  const cards = [...english, ...chinese];
+  refs.matchBoard.innerHTML = cards
+    .map((card) => `<button class="match-item" type="button" data-id="${card.id}" data-pair="${card.pair}">${card.text}</button>`)
+    .join('');
+
+  let doneCount = 0;
+
+  refs.matchBoard.onclick = (event) => {
+    const item = event.target.closest('.match-item');
+    if (!item || item.classList.contains('done')) return;
+
+    if (!currentMatchSelection) {
+      currentMatchSelection = item;
+      item.classList.add('active');
+      return;
+    }
+
+    if (currentMatchSelection === item) {
+      currentMatchSelection.classList.remove('active');
+      currentMatchSelection = null;
+      return;
+    }
+
+    const samePair = currentMatchSelection.dataset.pair === item.dataset.pair;
+    if (samePair) {
+      currentMatchSelection.classList.remove('active');
+      currentMatchSelection.classList.add('done');
+      item.classList.add('done');
+      doneCount += 1;
+      setFeedback(refs.matchMsg, '配对正确。', 'ok');
+      if (doneCount === WORD_PAIRS.length) {
+        state.wordPairsDone += 1;
+        state.checkin.tasksDone = Array.from(new Set([...state.checkin.tasksDone, 'word']));
+        saveState();
+        renderTasks();
+        renderDashboard();
+        setFeedback(refs.matchMsg, '全部配对完成。', 'ok');
+      }
+    } else {
+      currentMatchSelection.classList.remove('active');
+      setFeedback(refs.matchMsg, '配对不正确，再试一次。', 'bad');
+    }
+
+    currentMatchSelection = null;
+  };
+}
+
+function renderGrammar() {
+  const data = GRAMMAR_QUESTIONS[grammarIndex];
+  refs.grammarQuestion.textContent = `题目：${data.q}`;
+  refs.grammarOptions.innerHTML = data.options
+    .map((option, index) => `<button class="option" type="button" data-index="${index}">${option}</button>`)
+    .join('');
+  refs.grammarMsg.textContent = '';
+
+  refs.grammarOptions.onclick = (event) => {
+    const btn = event.target.closest('button[data-index]');
+    if (!btn) return;
+    const selected = Number(btn.dataset.index);
+
+    if (selected === data.answer) {
+      state.grammarCorrect += 1;
+      state.checkin.tasksDone = Array.from(new Set([...state.checkin.tasksDone, 'grammar']));
+      saveState();
+      renderTasks();
+      renderDashboard();
+      setFeedback(refs.grammarMsg, '回答正确。', 'ok');
+    } else {
+      setFeedback(refs.grammarMsg, `回答错误，正确答案是：${data.options[data.answer]}`, 'bad');
+    }
+  };
+}
+
+function renderSpelling() {
+  refs.spellingHint.textContent = `请拼写：${SPELLING_WORDS[spellingIndex].hint}`;
+  refs.spellingInput.value = '';
+  refs.spellingMsg.textContent = '';
+}
