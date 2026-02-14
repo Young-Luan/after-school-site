@@ -1,56 +1,33 @@
-# 第一步上线指南（Vercel + Supabase）
+# 上线指南（中国大陆优先，暂不付费）
 
-## 目标
-- 网站先上线到公网（Vercel）
-- 账号体系用 Supabase
-- 仅管理员发号，关闭用户自助注册
+目标：先把网站迁到中国大陆可用性更好的平台，且尽量不花钱。
 
-## A. Supabase 配置
-1. 新建 Supabase 项目。
-2. 在 Supabase SQL Editor 执行：`supabase/schema.sql`。
-3. 去 Auth -> Providers -> Email：
-- 打开 Email 登录
-- 关闭公开注册（Disable signups）
-4. 在 Project Settings -> API 复制：
-- `Project URL`
-- `anon public key`
-5. 打开项目根目录 `index.html`，替换：
-- `REPLACE_WITH_SUPABASE_URL`
-- `REPLACE_WITH_SUPABASE_ANON_KEY`
+当前建议：使用腾讯云 CloudBase 的静态网站托管（支持直接上传 ZIP）。
 
-## B. 创建第一个管理员账号
-因为系统关闭自助注册，先在 Supabase Dashboard 手动创建一个管理员：
-1. Auth -> Users -> Add user（填你的邮箱和密码）。
-2. 复制该用户的 `id`。
-3. 在 SQL Editor 执行：
-```sql
-insert into public.profiles (id, role, must_reset_password)
-values ('你的用户ID', 'admin', false)
-on conflict (id) do update set role = 'admin', must_reset_password = false;
-```
+## 0. 你需要知道的现实约束
+1. 你要求“暂时不付费”可以做到：先用 CloudBase 免费体验/免费额度上线。
+2. 长期稳定商用通常会涉及付费与备案（尤其绑定自有域名时）。
+3. 现在先保证“能在大陆更稳定访问”，不做账号系统。
 
-## C. 部署管理员创建账号函数（Edge Function）
-函数文件已提供：`supabase/functions/admin-create-user/index.ts`
+## 1. 一键准备部署包（我已帮你准备）
+项目根目录下会有一个 ZIP：`deploy-after-school-site.zip`。
+你后面在 CloudBase 控制台直接上传这个 ZIP 即可。
 
-你本地安装 Supabase CLI 后执行：
-```bash
-supabase login
-supabase link --project-ref 你的项目ref
-supabase functions deploy admin-create-user
-```
+## 2. CloudBase 控制台部署（无代码版）
+1. 打开腾讯云 CloudBase 控制台。
+2. 创建一个环境（按控制台提示，先用免费体验/免费额度）。
+3. 进入「静态网站托管」。
+4. 选择「上传代码包/文件夹」。
+5. 上传 `deploy-after-school-site.zip`。
+6. 部署完成后，会得到一个默认访问域名，先用这个域名给家长/学生访问。
 
-## D. 发布到 Vercel
-1. 把项目上传到 GitHub。
-2. 登录 Vercel，Import 该仓库。
-3. Framework Preset 选 `Other`。
-4. 直接 Deploy。
+## 3. 上线后检查（1分钟）
+1. 电脑和手机分别打开新域名。
+2. 检查四个菜单切换是否正常。
+3. 打卡后刷新，数据是否仍在。
+4. 练习模块（配对/语法/拼写）是否可用。
 
-## E. 验证流程
-1. 打开 Vercel 域名。
-2. 用管理员账号登录。
-3. 在页面“管理员：创建账号”里创建学生/家长账号。
-4. 用新账号登录验证。
-
-## 备注
-- 当前学习进度数据先保存在浏览器 localStorage（按用户ID隔离）。
-- 下一阶段可改为把学习记录存入 Supabase 数据库。
+## 4. 下一阶段（你说开始再做）
+1. 接入账号系统（管理员分发账号，不开放自助注册）。
+2. 学习记录从浏览器本地改为云端存储。
+3. 需要时再处理备案与正式域名。
