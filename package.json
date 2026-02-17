@@ -4,6 +4,6 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "build": "node scripts/build-static.mjs"
+    "build": "node build-static.mjs"
   }
 }
