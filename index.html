@@ -49,14 +49,6 @@
               <li>观看微课 4 节</li>
             </ul>
           </article>
-          <article class="card">
-            <h3>家长提示</h3>
-            <ul>
-              <li>每天固定 20-30 分钟学习时段</li>
-              <li>先复习错题，再完成新任务</li>
-              <li>每周一次亲子学习复盘</li>
-            </ul>
-          </article>
         </div>
 
         <article class="card progress">
@@ -65,6 +57,27 @@
             <div id="progress-bar" class="progress-fill"></div>
           </div>
           <p id="progress-text">今日任务完成度 0%</p>
+        </article>
+
+        <article class="card class-board">
+          <div class="class-board-head">
+            <h3>班级看板（演示）</h3>
+            <div class="class-picker">
+              <label for="class-selector">当前班级</label>
+              <select id="class-selector"></select>
+            </div>
+          </div>
+          <p id="class-summary" class="subtitle"></p>
+          <div class="grid two">
+            <section class="card soft">
+              <h3>班级打卡榜</h3>
+              <div id="rank-list" class="rank-list"></div>
+            </section>
+            <section class="card soft">
+              <h3>班级学习动态</h3>
+              <div id="activity-list" class="activity-list"></div>
+            </section>
+          </div>
         </article>
       </section>
 

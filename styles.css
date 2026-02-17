@@ -199,11 +199,19 @@ h3 {
   gap: 12px;
 }
 
+#dashboard .grid.two {
+  grid-template-columns: 1fr;
+}
+
 .card {
   background: var(--surface-2);
   border: 1px solid var(--line);
   border-radius: 14px;
   padding: 14px;
+}
+
+.card.soft {
+  background: #fffcf7;
 }
 
 .card ul {
@@ -323,6 +331,57 @@ select {
   border-radius: 10px;
   padding: 10px 12px;
   min-width: 220px;
+}
+
+.class-board {
+  margin-top: 12px;
+}
+
+.class-board-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.class-picker {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.class-picker label {
+  color: var(--muted);
+}
+
+.rank-list,
+.activity-list {
+  display: grid;
+  gap: 8px;
+}
+
+.rank-item,
+.activity-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 9px 10px;
+}
+
+.rank-item .name,
+.activity-item .name {
+  font-weight: 600;
+}
+
+.rank-item .meta,
+.activity-item .meta {
+  color: var(--muted);
+  font-size: 0.9rem;
 }
 
 @keyframes rise {
