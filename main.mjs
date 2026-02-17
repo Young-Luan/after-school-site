@@ -101,6 +101,10 @@ const refs = {
   todayStatus: document.getElementById('today-status'),
   progressBar: document.getElementById('progress-bar'),
   progressText: document.getElementById('progress-text'),
+  metricWord: document.getElementById('metric-word'),
+  metricGrammar: document.getElementById('metric-grammar'),
+  metricSpelling: document.getElementById('metric-spelling'),
+  weekCheckin: document.getElementById('week-checkin'),
   classSelector: document.getElementById('class-selector'),
   classSummary: document.getElementById('class-summary'),
   rankList: document.getElementById('rank-list'),
@@ -108,8 +112,10 @@ const refs = {
   taskList: document.getElementById('task-list'),
   checkinBtn: document.getElementById('checkin-btn'),
   resetTodayBtn: document.getElementById('reset-today-btn'),
+  completeAllBtn: document.getElementById('complete-all-btn'),
   checkinMsg: document.getElementById('checkin-msg'),
   microList: document.getElementById('micro-list'),
+  microMsg: document.getElementById('micro-msg'),
   matchBoard: document.getElementById('match-board'),
   matchMsg: document.getElementById('match-msg'),
   grammarQuestion: document.getElementById('grammar-question'),
@@ -147,6 +153,8 @@ function normalizeState(raw) {
   const today = todayKey();
   const safe = raw && typeof raw === 'object' ? raw : {};
   const checkin = safe.checkin && typeof safe.checkin === 'object' ? safe.checkin : {};
+  const watchedLessons = Array.isArray(safe.watchedLessons) ? safe.watchedLessons : [];
+  const checkinHistory = safe.checkinHistory && typeof safe.checkinHistory === 'object' ? safe.checkinHistory : {};
 
   if (checkin.date !== today) {
     checkin.date = today;
@@ -161,6 +169,8 @@ function normalizeState(raw) {
     grammarCorrect: Number.isFinite(safe.grammarCorrect) ? safe.grammarCorrect : 0,
     spellingCorrect: Number.isFinite(safe.spellingCorrect) ? safe.spellingCorrect : 0,
     wordPairsDone: Number.isFinite(safe.wordPairsDone) ? safe.wordPairsDone : 0,
+    watchedLessons,
+    checkinHistory,
     checkin
   };
 }
@@ -239,6 +249,7 @@ function bindCheckin() {
     }
 
     state.lastCheckinDate = today;
+    state.checkinHistory[today] = true;
     saveState();
     renderDashboard();
     setFeedback(refs.checkinMsg, '打卡成功，今天表现很棒。', 'ok');
@@ -251,6 +262,18 @@ function bindCheckin() {
     renderTasks();
     renderDashboard();
     setFeedback(refs.checkinMsg, '已重置今日任务。', '');
+  });
+
+  refs.completeAllBtn.addEventListener('click', () => {
+    if (state.checkin.checked) {
+      setFeedback(refs.checkinMsg, '今天已打卡，无需一键完成。', 'ok');
+      return;
+    }
+    state.checkin.tasksDone = DAILY_TASKS.map((task) => task.id);
+    saveState();
+    renderTasks();
+    renderDashboard();
+    setFeedback(refs.checkinMsg, '演示模式：已勾选全部今日任务。', 'ok');
   });
 }
 
@@ -314,11 +337,35 @@ function renderDashboard() {
   refs.streakDays.textContent = String(state.streakDays);
   refs.totalMinutes.textContent = String(state.totalMinutes);
   refs.todayStatus.textContent = state.checkin.checked ? '已打卡' : '未打卡';
+  refs.metricWord.textContent = String(state.wordPairsDone);
+  refs.metricGrammar.textContent = String(state.grammarCorrect);
+  refs.metricSpelling.textContent = String(state.spellingCorrect);
 
   const done = state.checkin.tasksDone.length;
   const percent = Math.round((done / DAILY_TASKS.length) * 100);
   refs.progressBar.style.width = `${percent}%`;
   refs.progressText.textContent = `今日任务完成度 ${percent}%`;
+  renderWeekCheckin();
+}
+
+function renderWeekCheckin() {
+  const days = [];
+  const now = new Date();
+  const labels = ['日', '一', '二', '三', '四', '五', '六'];
+
+  for (let i = 6; i >= 0; i -= 1) {
+    const date = new Date(now);
+    date.setDate(now.getDate() - i);
+    const key = date.toISOString().slice(0, 10);
+    const done = Boolean(state.checkinHistory[key]) || (key === todayKey() && state.checkin.checked);
+    days.push({ day: labels[date.getDay()], done });
+  }
+
+  refs.weekCheckin.innerHTML = days
+    .map((item) => {
+      return `<div class="day-pill ${item.done ? 'done' : ''}"><b>周${item.day}</b><span>${item.done ? '已打卡' : '未打卡'}</span></div>`;
+    })
+    .join('');
 }
 
 function renderClassBoard() {
@@ -364,24 +411,35 @@ function renderTasks() {
 
 function renderMicroLessons() {
   refs.microList.innerHTML = LESSONS.map((lesson) => {
+    const watched = state.watchedLessons.includes(lesson.title);
     return `
       <article class="card lesson">
         <h3>${lesson.title}</h3>
         <p class="meta">主题：${lesson.topic} | 时长：${lesson.duration} 分钟</p>
-        <button type="button" data-watch="${lesson.title}">标记为已观看</button>
+        <button type="button" class="${watched ? 'is-watched' : ''}" data-watch="${lesson.title}">
+          ${watched ? '已观看' : '标记为已观看'}
+        </button>
       </article>
     `;
   }).join('');
 
-  refs.microList.addEventListener('click', (event) => {
+  refs.microList.onclick = (event) => {
     const btn = event.target.closest('button[data-watch]');
     if (!btn) return;
 
+    const title = btn.dataset.watch;
+    if (!title) return;
+
+    if (!state.watchedLessons.includes(title)) {
+      state.watchedLessons.push(title);
+    }
     state.checkin.tasksDone = Array.from(new Set([...state.checkin.tasksDone, 'video']));
     saveState();
     renderTasks();
     renderDashboard();
-  });
+    renderMicroLessons();
+    setFeedback(refs.microMsg, '已记录微课观看状态。', 'ok');
+  };
 }
 
 function setFeedback(el, text, cls) {

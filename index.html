@@ -59,6 +59,31 @@
           <p id="progress-text">今日任务完成度 0%</p>
         </article>
 
+        <div class="grid two">
+          <article class="card">
+            <h3>练习战绩（本设备）</h3>
+            <div class="mini-stats">
+              <div>
+                <strong id="metric-word">0</strong>
+                <span>单词配对通关</span>
+              </div>
+              <div>
+                <strong id="metric-grammar">0</strong>
+                <span>语法答对次数</span>
+              </div>
+              <div>
+                <strong id="metric-spelling">0</strong>
+                <span>拼写答对次数</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="card">
+            <h3>最近 7 天打卡</h3>
+            <div id="week-checkin" class="week-checkin"></div>
+          </article>
+        </div>
+
         <article class="card class-board">
           <div class="class-board-head">
             <h3>班级看板（演示）</h3>
@@ -89,6 +114,7 @@
           <div class="actions">
             <button id="checkin-btn" class="primary" type="button">完成今日打卡</button>
             <button id="reset-today-btn" type="button">重置今日任务</button>
+            <button id="complete-all-btn" type="button">一键完成全部（演示）</button>
           </div>
           <p id="checkin-msg" class="feedback"></p>
         </div>
@@ -97,6 +123,7 @@
       <section class="panel hidden" id="micro" data-panel>
         <h2>微课观看</h2>
         <div class="grid two" id="micro-list"></div>
+        <p id="micro-msg" class="feedback"></p>
       </section>
 
       <section class="panel hidden" id="practice" data-panel>

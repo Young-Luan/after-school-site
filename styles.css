@@ -235,6 +235,62 @@ h3 {
   transition: width 200ms ease;
 }
 
+.mini-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.mini-stats div {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 10px;
+  background: #fff;
+}
+
+.mini-stats strong {
+  display: block;
+  font-size: 1.2rem;
+}
+
+.mini-stats span {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.week-checkin {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.day-pill {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fff;
+  padding: 8px 6px;
+  text-align: center;
+}
+
+.day-pill b {
+  display: block;
+  font-size: 0.9rem;
+}
+
+.day-pill span {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.day-pill.done {
+  border-color: #8fcfa9;
+  background: #eef8f1;
+}
+
+.day-pill.done span {
+  color: var(--ok);
+}
+
 .task-list {
   display: grid;
   gap: 10px;
@@ -286,6 +342,12 @@ h3 {
 .lesson .meta {
   color: var(--muted);
   font-size: 0.92rem;
+}
+
+.lesson button.is-watched {
+  background: #eaf8f9;
+  border-color: #8fd3d8;
+  color: #0f5c63;
 }
 
 .option-list {
@@ -399,8 +461,13 @@ select {
 @media (max-width: 800px) {
   .grid.two,
   .hero-stats,
-  .match-board {
+  .match-board,
+  .mini-stats {
     grid-template-columns: 1fr;
+  }
+
+  .week-checkin {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 
   .app {
