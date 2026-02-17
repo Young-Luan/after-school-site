@@ -44,10 +44,48 @@ const SPELLING_WORDS = [
   { hint: '意思：漂亮的', word: 'beautiful' }
 ];
 
+const CLASS_DEMO = {
+  语音提高: {
+    totalStudents: 26,
+    checkedToday: 21,
+    ranking: [
+      { name: '林同学', streak: 19, minutes: 420 },
+      { name: '周同学', streak: 15, minutes: 390 },
+      { name: '陈同学', streak: 14, minutes: 360 },
+      { name: '王同学', streak: 11, minutes: 325 },
+      { name: '张同学', streak: 10, minutes: 308 }
+    ],
+    activities: [
+      { name: '赵同学', event: '完成单词拼写 10 题', time: '18:40' },
+      { name: '刘同学', event: '观看微课：一般现在时', time: '18:28' },
+      { name: '家长-杨妈妈', event: '提交本周复盘反馈', time: '17:56' },
+      { name: '吴同学', event: '完成语法练习并全对', time: '17:31' }
+    ]
+  },
+  LG: {
+    totalStudents: 32,
+    checkedToday: 25,
+    ranking: [
+      { name: '黄同学', streak: 22, minutes: 510 },
+      { name: '李同学', streak: 20, minutes: 488 },
+      { name: '蒋同学', streak: 16, minutes: 430 },
+      { name: '孙同学', streak: 15, minutes: 402 },
+      { name: '何同学', streak: 13, minutes: 395 }
+    ],
+    activities: [
+      { name: '唐同学', event: '完成单词配对闯关', time: '19:02' },
+      { name: '家长-李爸爸', event: '确认今日打卡', time: '18:47' },
+      { name: '冯同学', event: '完成微课并记录笔记', time: '18:35' },
+      { name: '邓同学', event: '语法练习得分 4/5', time: '18:10' }
+    ]
+  }
+};
+
 const state = loadState();
 let grammarIndex = 0;
 let spellingIndex = 0;
 let currentMatchSelection = null;
+let currentClassName = Object.keys(CLASS_DEMO)[0];
 
 const refs = {
   tabs: document.querySelectorAll('.tab'),
@@ -63,6 +101,10 @@ const refs = {
   todayStatus: document.getElementById('today-status'),
   progressBar: document.getElementById('progress-bar'),
   progressText: document.getElementById('progress-text'),
+  classSelector: document.getElementById('class-selector'),
+  classSummary: document.getElementById('class-summary'),
+  rankList: document.getElementById('rank-list'),
+  activityList: document.getElementById('activity-list'),
   taskList: document.getElementById('task-list'),
   checkinBtn: document.getElementById('checkin-btn'),
   resetTodayBtn: document.getElementById('reset-today-btn'),
@@ -87,8 +129,10 @@ function init() {
   bindTabs();
   bindCheckin();
   bindPractice();
+  bindClassBoard();
   renderTasks();
   renderDashboard();
+  renderClassBoard();
   renderMicroLessons();
   resetMatchGame();
   renderGrammar();
@@ -254,6 +298,18 @@ function bindPractice() {
   });
 }
 
+function bindClassBoard() {
+  refs.classSelector.innerHTML = Object.keys(CLASS_DEMO)
+    .map((className) => `<option value="${className}">${className}</option>`)
+    .join('');
+
+  refs.classSelector.value = currentClassName;
+  refs.classSelector.addEventListener('change', () => {
+    currentClassName = refs.classSelector.value;
+    renderClassBoard();
+  });
+}
+
 function renderDashboard() {
   refs.streakDays.textContent = String(state.streakDays);
   refs.totalMinutes.textContent = String(state.totalMinutes);
@@ -263,6 +319,35 @@ function renderDashboard() {
   const percent = Math.round((done / DAILY_TASKS.length) * 100);
   refs.progressBar.style.width = `${percent}%`;
   refs.progressText.textContent = `今日任务完成度 ${percent}%`;
+}
+
+function renderClassBoard() {
+  const data = CLASS_DEMO[currentClassName];
+  refs.classSummary.textContent = `${currentClassName} 今日打卡 ${data.checkedToday}/${data.totalStudents} 人，打卡率 ${Math.round(
+    (data.checkedToday / data.totalStudents) * 100
+  )}%`;
+
+  refs.rankList.innerHTML = data.ranking
+    .map((item, index) => {
+      return `
+        <article class="rank-item">
+          <span class="name">#${index + 1} ${item.name}</span>
+          <span class="meta">连续 ${item.streak} 天 | ${item.minutes} 分钟</span>
+        </article>
+      `;
+    })
+    .join('');
+
+  refs.activityList.innerHTML = data.activities
+    .map((item) => {
+      return `
+        <article class="activity-item">
+          <span class="name">${item.name}</span>
+          <span class="meta">${item.event} · ${item.time}</span>
+        </article>
+      `;
+    })
+    .join('');
 }
 
 function renderTasks() {
