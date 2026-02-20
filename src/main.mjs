@@ -138,8 +138,7 @@ const refs = {
   feb20Status: document.getElementById('feb20-status'),
   feb20CheckinBtn: document.getElementById('feb20-checkin-btn'),
   feb20Msg: document.getElementById('feb20-msg'),
-  voiceStartBtn: document.getElementById('voice-start-btn'),
-  voiceStopBtn: document.getElementById('voice-stop-btn'),
+  voiceToggleBtn: document.getElementById('voice-toggle-btn'),
   voicePlayBtn: document.getElementById('voice-play-btn'),
   voiceSubmitBtn: document.getElementById('voice-submit-btn'),
   voiceEndpointInput: document.getElementById('voice-endpoint-input'),
@@ -365,8 +364,7 @@ function bindWinterProject() {
     setFeedback(refs.feb20Msg, '2月20号项目打卡成功。', 'ok');
   });
 
-  refs.voiceStartBtn?.addEventListener('click', startRecording);
-  refs.voiceStopBtn?.addEventListener('click', stopRecording);
+  refs.voiceToggleBtn?.addEventListener('click', toggleRecording);
   refs.voicePlayBtn?.addEventListener('click', () => {
     if (!recordedUrl) return;
     refs.voiceAudio.classList.remove('hidden');
@@ -419,12 +417,14 @@ async function startRecording() {
       refs.voiceAudio.src = recordedUrl;
       refs.voiceAudio.classList.remove('hidden');
       refs.voicePlayBtn.disabled = false;
+      refs.voiceToggleBtn.textContent = '点击开始录音';
+      refs.voiceToggleBtn.classList.remove('is-recording');
       setFeedback(refs.voiceMsg, '录音完成，可以播放或提交。', 'ok');
       recorderStream?.getTracks().forEach((track) => track.stop());
     };
     recorder.start();
-    refs.voiceStartBtn.disabled = true;
-    refs.voiceStopBtn.disabled = false;
+    refs.voiceToggleBtn.textContent = '点击停止并保存';
+    refs.voiceToggleBtn.classList.add('is-recording');
     refs.voicePlayBtn.disabled = true;
     setFeedback(refs.voiceMsg, '录音中，请朗读后点击停止。', '');
   } catch {
@@ -435,8 +435,16 @@ async function startRecording() {
 function stopRecording() {
   if (!recorder || recorder.state !== 'recording') return;
   recorder.stop();
-  refs.voiceStartBtn.disabled = false;
-  refs.voiceStopBtn.disabled = true;
+  refs.voiceToggleBtn.textContent = '点击开始录音';
+  refs.voiceToggleBtn.classList.remove('is-recording');
+}
+
+function toggleRecording() {
+  if (!recorder || recorder.state !== 'recording') {
+    startRecording();
+    return;
+  }
+  stopRecording();
 }
 
 async function submitRecording() {
