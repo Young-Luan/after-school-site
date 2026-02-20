@@ -269,6 +269,10 @@ h3 {
 
 .feb20-project {
   margin-top: 12px;
+  background: #ffffff;
+  border: 1px solid #e8e0d4;
+  border-radius: 16px;
+  padding: 16px;
 }
 
 .project-head {
@@ -294,18 +298,25 @@ h3 {
 }
 
 .feb20-project h4 {
-  margin: 14px 0 8px;
+  margin: 18px 0 10px;
+  font-size: 1.7rem;
+  letter-spacing: 0.01em;
 }
 
 .feb20-project h5 {
   margin: 0 0 6px;
 }
 
+.vocab-sheet {
+  background: #eef0f3;
+  border-radius: 18px;
+  padding: 16px;
+  border: 1px solid #e0e3e8;
+}
+
 .table-wrap {
   overflow-x: auto;
-  border-radius: 16px;
-  background: #f1f3f6;
-  padding: 10px;
+  border-radius: 14px;
 }
 
 .vocab-table {
@@ -313,73 +324,81 @@ h3 {
   border-collapse: separate;
   border-spacing: 0;
   min-width: 860px;
-  background: #f1f3f6;
+  background: transparent;
 }
 
 .vocab-table th,
 .vocab-table td {
   border: 0;
-  border-bottom: 1px solid #dde1e7;
-  padding: 12px 12px;
+  border-bottom: 1px solid #d8dce3;
+  padding: 14px 14px;
   text-align: left;
   vertical-align: top;
-  font-size: 0.94rem;
-  line-height: 1.45;
+  font-size: 1.02rem;
+  line-height: 1.5;
+  color: #2a2f38;
 }
 
 .vocab-table th {
-  background: #f1f3f6;
-  font-size: 1.05rem;
+  background: transparent;
+  font-size: 2.2rem;
   font-weight: 700;
   color: #272e39;
-  padding-top: 8px;
-  padding-bottom: 10px;
+  padding-top: 6px;
+  padding-bottom: 14px;
 }
 
 .vocab-table td:first-child {
-  font-size: 2rem;
+  font-size: 2.4rem;
   font-weight: 700;
   color: #1e2a39;
-  min-width: 90px;
+  min-width: 110px;
 }
 
 .vocab-table tr:last-child td {
   border-bottom: 0;
 }
 
+.vocab-table tr:nth-child(2n) td {
+  padding-top: 6px;
+  padding-bottom: 18px;
+}
+
 .compare-groups {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
+  gap: 12px;
 }
 
 .compare-groups section {
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  padding: 10px;
-  background: #fff;
+  border: 1px solid #e8e0d4;
+  border-radius: 12px;
+  padding: 12px;
+  background: #fffdfa;
 }
 
 .compare-groups p {
-  margin: 4px 0;
+  margin: 6px 0;
+  font-size: 1rem;
 }
 
 .reading-block {
-  border: 1px solid var(--line);
-  border-radius: 10px;
+  border: 1px solid #e8e0d4;
+  border-radius: 12px;
   background: #fff;
-  padding: 10px;
+  padding: 12px;
 }
 
 .reading-block p {
-  margin: 0 0 8px;
-  line-height: 1.5;
+  margin: 0 0 10px;
+  line-height: 1.65;
+  font-size: 1rem;
 }
 
 .voice-box {
-  border: 1px solid var(--line);
+  border: 1px solid #e8e0d4;
   border-radius: 12px;
-  background: #fff;
+  background: #fffdfa;
   padding: 12px;
 }
 
@@ -637,6 +656,24 @@ select {
 
   .compare-groups {
     grid-template-columns: 1fr;
+  }
+
+  .feb20-project h4 {
+    font-size: 1.25rem;
+  }
+
+  .vocab-table th {
+    font-size: 1.1rem;
+  }
+
+  .vocab-table td {
+    font-size: 0.95rem;
+    padding: 10px;
+  }
+
+  .vocab-table td:first-child {
+    font-size: 1.4rem;
+    min-width: 84px;
   }
 
   .week-checkin {
