@@ -211,6 +211,18 @@ h3 {
   vertical-align: middle;
 }
 
+.release-badge {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  color: #2f5d86;
+  background: #eaf3fb;
+  border: 1px solid #c8dff2;
+  vertical-align: middle;
+}
+
 .grid.two {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
