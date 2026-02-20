@@ -267,6 +267,26 @@
             <button id="feb20-checkin-btn" class="primary" type="button">完成 2月20号项目打卡</button>
           </div>
           <p id="feb20-msg" class="feedback"></p>
+
+          <h4>录音提交（姓名必填）</h4>
+          <div class="voice-box">
+            <p class="voice-note">请先录音，再输入姓名并提交。提交后老师后台可接收音频。</p>
+            <div class="actions">
+              <input id="voice-endpoint-input" type="text" placeholder="粘贴后台接收地址（仅管理员设置一次）" />
+              <button id="voice-endpoint-save-btn" type="button">保存地址</button>
+            </div>
+            <div class="actions">
+              <button id="voice-start-btn" class="primary" type="button">开始录音</button>
+              <button id="voice-stop-btn" type="button" disabled>停止录音</button>
+              <button id="voice-play-btn" type="button" disabled>播放录音</button>
+            </div>
+            <div class="actions">
+              <input id="voice-student-name" type="text" placeholder="请输入学生姓名（必填）" />
+              <button id="voice-submit-btn" class="primary" type="button">提交录音</button>
+            </div>
+            <audio id="voice-audio" controls class="hidden"></audio>
+            <p id="voice-msg" class="feedback"></p>
+          </div>
         </article>
       </section>
 

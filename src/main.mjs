@@ -5,6 +5,8 @@ const WINTER_PROJECT = {
   end: '2026-02-28'
 };
 const FEB20_PROJECT_KEY = '2026-02-20';
+const VOICE_UPLOAD_ENDPOINT = '';
+const VOICE_ENDPOINT_KEY = 'voice-upload-endpoint-v1';
 
 const LESSONS = [
   { title: '微课1：自然拼读基础', duration: 8, topic: '英语单词' },
@@ -92,6 +94,11 @@ let grammarIndex = 0;
 let spellingIndex = 0;
 let currentMatchSelection = null;
 let currentClassName = Object.keys(CLASS_DEMO)[0];
+let recorder = null;
+let recorderStream = null;
+let recordedChunks = [];
+let recordedBlob = null;
+let recordedUrl = '';
 
 const refs = {
   tabs: document.querySelectorAll('.tab'),
@@ -131,6 +138,15 @@ const refs = {
   feb20Status: document.getElementById('feb20-status'),
   feb20CheckinBtn: document.getElementById('feb20-checkin-btn'),
   feb20Msg: document.getElementById('feb20-msg'),
+  voiceStartBtn: document.getElementById('voice-start-btn'),
+  voiceStopBtn: document.getElementById('voice-stop-btn'),
+  voicePlayBtn: document.getElementById('voice-play-btn'),
+  voiceSubmitBtn: document.getElementById('voice-submit-btn'),
+  voiceEndpointInput: document.getElementById('voice-endpoint-input'),
+  voiceEndpointSaveBtn: document.getElementById('voice-endpoint-save-btn'),
+  voiceStudentName: document.getElementById('voice-student-name'),
+  voiceAudio: document.getElementById('voice-audio'),
+  voiceMsg: document.getElementById('voice-msg'),
   microList: document.getElementById('micro-list'),
   microMsg: document.getElementById('micro-msg'),
   matchBoard: document.getElementById('match-board'),
@@ -348,6 +364,19 @@ function bindWinterProject() {
     renderWinterProject();
     setFeedback(refs.feb20Msg, '2月20号项目打卡成功。', 'ok');
   });
+
+  refs.voiceStartBtn?.addEventListener('click', startRecording);
+  refs.voiceStopBtn?.addEventListener('click', stopRecording);
+  refs.voicePlayBtn?.addEventListener('click', () => {
+    if (!recordedUrl) return;
+    refs.voiceAudio.classList.remove('hidden');
+    refs.voiceAudio.play();
+  });
+  refs.voiceSubmitBtn?.addEventListener('click', submitRecording);
+  refs.voiceEndpointSaveBtn?.addEventListener('click', saveVoiceEndpoint);
+  if (refs.voiceEndpointInput) {
+    refs.voiceEndpointInput.value = getVoiceUploadEndpoint();
+  }
 }
 
 function renderWinterProject() {
@@ -363,6 +392,110 @@ function renderWinterProject() {
   refs.feb20Status.textContent = feb20Checked ? '已完成' : '未完成';
   refs.feb20Status.classList.toggle('done', feb20Checked);
   refs.feb20CheckinBtn.disabled = feb20Checked;
+}
+
+async function startRecording() {
+  if (!navigator.mediaDevices?.getUserMedia) {
+    setFeedback(refs.voiceMsg, '当前设备不支持录音。', 'bad');
+    return;
+  }
+  try {
+    if (recordedUrl) {
+      URL.revokeObjectURL(recordedUrl);
+      recordedUrl = '';
+    }
+    recordedBlob = null;
+    recordedChunks = [];
+    recorderStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    recorder = new MediaRecorder(recorderStream);
+    recorder.ondataavailable = (event) => {
+      if (event.data && event.data.size > 0) {
+        recordedChunks.push(event.data);
+      }
+    };
+    recorder.onstop = () => {
+      recordedBlob = new Blob(recordedChunks, { type: 'audio/webm' });
+      recordedUrl = URL.createObjectURL(recordedBlob);
+      refs.voiceAudio.src = recordedUrl;
+      refs.voiceAudio.classList.remove('hidden');
+      refs.voicePlayBtn.disabled = false;
+      setFeedback(refs.voiceMsg, '录音完成，可以播放或提交。', 'ok');
+      recorderStream?.getTracks().forEach((track) => track.stop());
+    };
+    recorder.start();
+    refs.voiceStartBtn.disabled = true;
+    refs.voiceStopBtn.disabled = false;
+    refs.voicePlayBtn.disabled = true;
+    setFeedback(refs.voiceMsg, '录音中，请朗读后点击停止。', '');
+  } catch {
+    setFeedback(refs.voiceMsg, '无法启动录音，请检查麦克风权限。', 'bad');
+  }
+}
+
+function stopRecording() {
+  if (!recorder || recorder.state !== 'recording') return;
+  recorder.stop();
+  refs.voiceStartBtn.disabled = false;
+  refs.voiceStopBtn.disabled = true;
+}
+
+async function submitRecording() {
+  const studentName = refs.voiceStudentName.value.trim();
+  if (!studentName) {
+    setFeedback(refs.voiceMsg, '提交前必须输入姓名。', 'bad');
+    return;
+  }
+  if (!recordedBlob) {
+    setFeedback(refs.voiceMsg, '请先录音再提交。', 'bad');
+    return;
+  }
+  const uploadEndpoint = getVoiceUploadEndpoint();
+  if (!uploadEndpoint) {
+    setFeedback(refs.voiceMsg, '请先填写并保存后台接收地址。', 'bad');
+    return;
+  }
+
+  try {
+    refs.voiceSubmitBtn.disabled = true;
+    const formData = new FormData();
+    formData.append('studentName', studentName);
+    formData.append('project', '2026-02-20-winter-checkin');
+    formData.append('date', todayKey());
+    formData.append('audio', recordedBlob, `${studentName}-${Date.now()}.webm`);
+
+    const response = await fetch(uploadEndpoint, {
+      method: 'POST',
+      body: formData
+    });
+
+    if (!response.ok) {
+      throw new Error(`upload failed: ${response.status}`);
+    }
+
+    state.specialProjectCheckins[FEB20_PROJECT_KEY] = true;
+    saveState();
+    renderWinterProject();
+    setFeedback(refs.voiceMsg, '录音提交成功，老师后台可查看。', 'ok');
+  } catch {
+    setFeedback(refs.voiceMsg, '录音提交失败，请稍后重试。', 'bad');
+  } finally {
+    refs.voiceSubmitBtn.disabled = false;
+  }
+}
+
+function getVoiceUploadEndpoint() {
+  const saved = localStorage.getItem(VOICE_ENDPOINT_KEY) || '';
+  return (saved || VOICE_UPLOAD_ENDPOINT).trim();
+}
+
+function saveVoiceEndpoint() {
+  const value = refs.voiceEndpointInput?.value?.trim() || '';
+  if (!value) {
+    setFeedback(refs.voiceMsg, '后台地址不能为空。', 'bad');
+    return;
+  }
+  localStorage.setItem(VOICE_ENDPOINT_KEY, value);
+  setFeedback(refs.voiceMsg, '后台地址已保存。', 'ok');
 }
 
 function bindPractice() {
