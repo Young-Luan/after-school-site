@@ -170,6 +170,12 @@ button:hover {
   border-color: var(--brand-2);
 }
 
+.tab-seasonal {
+  border-color: #e59b44;
+  color: #8a4a00;
+  background: #fff6ea;
+}
+
 .panel {
   margin-top: 14px;
   background: var(--surface);
@@ -191,6 +197,18 @@ h2 {
 
 h3 {
   margin: 0 0 10px;
+}
+
+.temp-badge {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 3px 8px;
+  font-size: 0.75rem;
+  border-radius: 999px;
+  background: #fff1df;
+  border: 1px solid #f0c38a;
+  color: #9c5100;
+  vertical-align: middle;
 }
 
 .grid.two {
@@ -218,6 +236,124 @@ h3 {
   margin: 0;
   padding-left: 20px;
   color: var(--muted);
+}
+
+.winter-hero {
+  border-color: #f0d8b4;
+  background: linear-gradient(135deg, #fffaf2 0%, #fff4e5 100%);
+}
+
+.winter-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.winter-stats div {
+  background: #fff;
+  border: 1px solid #f0d8b4;
+  border-radius: 10px;
+  padding: 10px;
+}
+
+.winter-stats strong {
+  display: block;
+  font-size: 1.15rem;
+}
+
+.winter-stats span {
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.feb20-project {
+  margin-top: 12px;
+}
+
+.project-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.project-status {
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid #e2c79f;
+  background: #fff5e9;
+  color: #8a4a00;
+  font-size: 0.85rem;
+}
+
+.project-status.done {
+  border-color: #8fcfa9;
+  background: #eef8f1;
+  color: #1b8f4f;
+}
+
+.feb20-project h4 {
+  margin: 14px 0 8px;
+}
+
+.feb20-project h5 {
+  margin: 0 0 6px;
+}
+
+.table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+
+.vocab-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 860px;
+  background: #fff;
+}
+
+.vocab-table th,
+.vocab-table td {
+  border: 1px solid #eee2d1;
+  padding: 8px 10px;
+  text-align: left;
+  vertical-align: top;
+  font-size: 0.92rem;
+}
+
+.vocab-table th {
+  background: #fff6e9;
+}
+
+.compare-groups {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.compare-groups section {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 10px;
+  background: #fff;
+}
+
+.compare-groups p {
+  margin: 4px 0;
+}
+
+.reading-block {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fff;
+  padding: 10px;
+}
+
+.reading-block p {
+  margin: 0 0 8px;
+  line-height: 1.5;
 }
 
 .progress-track {
@@ -462,7 +598,12 @@ select {
   .grid.two,
   .hero-stats,
   .match-board,
-  .mini-stats {
+  .mini-stats,
+  .winter-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .compare-groups {
     grid-template-columns: 1fr;
   }
 

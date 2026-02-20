@@ -33,6 +33,7 @@
 
       <nav class="tabs" aria-label="功能导航">
         <button class="tab is-active" data-tab="dashboard" type="button">学习看板</button>
+        <button class="tab tab-seasonal" data-tab="winter" type="button">寒假打卡</button>
         <button class="tab" data-tab="checkin" type="button">打卡任务</button>
         <button class="tab" data-tab="micro" type="button">微课观看</button>
         <button class="tab" data-tab="practice" type="button">互动练习</button>
@@ -103,6 +104,169 @@
               <div id="activity-list" class="activity-list"></div>
             </section>
           </div>
+        </article>
+      </section>
+
+      <section class="panel hidden" id="winter" data-panel>
+        <h2>寒假打卡项目 <span class="temp-badge">临时项目</span></h2>
+        <article class="card winter-hero">
+          <h3>寒假专项目标（后续可拆除）</h3>
+          <p>每天完成 1 次寒假专项打卡：词汇 + 朗读 + 错题复盘，培养假期学习连续性。</p>
+          <div class="winter-stats">
+            <div>
+              <strong id="winter-count">0</strong>
+              <span>项目累计打卡天数</span>
+            </div>
+            <div>
+              <strong id="winter-status">未打卡</strong>
+              <span>今日寒假项目状态</span>
+            </div>
+            <div>
+              <strong id="winter-date-range">2026.01.15 - 2026.02.28</strong>
+              <span>项目开放周期</span>
+            </div>
+          </div>
+          <div class="actions">
+            <button id="winter-checkin-btn" class="primary" type="button">完成寒假项目打卡</button>
+            <button id="winter-reset-btn" type="button">重置今日寒假状态</button>
+          </div>
+          <p id="winter-msg" class="feedback"></p>
+        </article>
+
+        <article class="card feb20-project">
+          <div class="project-head">
+            <h3>2月20号打卡项目</h3>
+            <span id="feb20-status" class="project-status">未完成</span>
+          </div>
+
+          <h4>1. Sounds and Spelling (音字拼读核心词汇)</h4>
+          <div class="table-wrap">
+            <table class="vocab-table">
+              <thead>
+                <tr>
+                  <th>目标发音</th>
+                  <th>词汇 1</th>
+                  <th>词汇 2</th>
+                  <th>词汇 3</th>
+                  <th>词汇 4</th>
+                  <th>词汇 5</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>ar</strong></td>
+                  <td>arm /ɑ:m/</td>
+                  <td>card /kɑ:d/</td>
+                  <td>scarf /skɑ:f/</td>
+                  <td>farmer /ˈfɑ:mə/</td>
+                  <td>shark /ʃɑ:k/</td>
+                </tr>
+                <tr>
+                  <td></td>
+                  <td>war /wɔ:/</td>
+                  <td>wharf /wɔ:f/</td>
+                  <td>quarter /ˈkwɔ:tə/</td>
+                  <td></td>
+                  <td></td>
+                </tr>
+                <tr>
+                  <td><strong>er / ur</strong></td>
+                  <td>her /hɜ:/</td>
+                  <td>serve /sɜ:v/</td>
+                  <td>person /ˈpɜ:sn/</td>
+                  <td>river /ˈrɪvə/</td>
+                  <td>driver /ˈdraɪvə/</td>
+                </tr>
+                <tr>
+                  <td></td>
+                  <td>ladder /ˈlædə/</td>
+                  <td>nurse /nɜ:s/</td>
+                  <td>turtle /ˈtɜ:tl/</td>
+                  <td>church /tʃɜ:tʃ/</td>
+                  <td>Saturday /ˈsætədɪ/</td>
+                </tr>
+                <tr>
+                  <td><strong>ir</strong></td>
+                  <td>bird /bɜ:d/</td>
+                  <td>girl /gɜ:l/</td>
+                  <td>shirt /ʃɜ:t/</td>
+                  <td>thirteen /ˌθɜ:ˈti:n/</td>
+                  <td>thirty /ˈθɜ:tɪ/</td>
+                </tr>
+                <tr>
+                  <td></td>
+                  <td>circle /ˈsɜ:kl/</td>
+                  <td>skirt /skɜ:t/</td>
+                  <td>first /fɜ:st/</td>
+                  <td></td>
+                  <td></td>
+                </tr>
+                <tr>
+                  <td><strong>or</strong></td>
+                  <td>corn /kɔ:n/</td>
+                  <td>horse /hɔ:s/</td>
+                  <td>sport /spɔ:t/</td>
+                  <td>forty /ˈfɔ:tɪ/</td>
+                  <td>worker /ˈwɜ:kə/</td>
+                </tr>
+                <tr>
+                  <td></td>
+                  <td>word /wɜ:d/</td>
+                  <td>worm /wɜ:m/</td>
+                  <td>doctor /ˈdɒktə/</td>
+                  <td>tailor /ˈteɪlə/</td>
+                  <td>actor /ˈæktə/</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h4>2. Read and Write (读写易混词汇对比)</h4>
+          <div class="compare-groups">
+            <section>
+              <h5>第一组</h5>
+              <p>dark —— smart</p>
+              <p>garden —— hard</p>
+              <p>fart —— warn</p>
+              <p>warm —— ward</p>
+              <p>award —— quart</p>
+            </section>
+            <section>
+              <h5>第二组</h5>
+              <p>herb —— term</p>
+              <p>clever —— winter</p>
+              <p>better —— purple</p>
+              <p>purse —— turn</p>
+              <p>hurt —— surprise</p>
+            </section>
+            <section>
+              <h5>第三组</h5>
+              <p>dirty —— third</p>
+              <p>sir —— birth</p>
+              <p>dirt —— firm</p>
+              <p>stir —— fir</p>
+            </section>
+            <section>
+              <h5>第四组</h5>
+              <p>morning —— force</p>
+              <p>pork —— north</p>
+              <p>work —— world</p>
+              <p>worth —— worse</p>
+              <p>tractor —— sailor</p>
+            </section>
+          </div>
+
+          <h4>3. Say it clearly and quickly (语段速读练习)</h4>
+          <div class="reading-block">
+            <p><strong>段落 1：</strong>A banana is in a glass. The glass is in a basket. The basket is in a car. The car is in a garden. The garden is on a farm. The farm is very, very far.</p>
+            <p><strong>段落 2：</strong>Three girls in red skirts are playing with an early bird on the morning of their thirteenth birthday. The bird says, "Hello. Here is your birthday gift, a circle made of leaves."</p>
+            <p><strong>段落 3：</strong>An actor is acting as a doctor. He is giving a horse a check-up. The horse will race with a tractor in a sports meeting tomorrow morning. The actor is a hard-working worker.</p>
+          </div>
+
+          <div class="actions">
+            <button id="feb20-checkin-btn" class="primary" type="button">完成 2月20号项目打卡</button>
+          </div>
+          <p id="feb20-msg" class="feedback"></p>
         </article>
       </section>
 

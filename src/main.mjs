@@ -1,4 +1,10 @@
 const STORAGE_KEY = 'after-school-hub-v1';
+const WINTER_PROJECT_ENABLED = true;
+const WINTER_PROJECT = {
+  start: '2026-01-15',
+  end: '2026-02-28'
+};
+const FEB20_PROJECT_KEY = '2026-02-20';
 
 const LESSONS = [
   { title: '微课1：自然拼读基础', duration: 8, topic: '英语单词' },
@@ -114,6 +120,17 @@ const refs = {
   resetTodayBtn: document.getElementById('reset-today-btn'),
   completeAllBtn: document.getElementById('complete-all-btn'),
   checkinMsg: document.getElementById('checkin-msg'),
+  winterTab: document.querySelector('[data-tab="winter"]'),
+  winterPanel: document.getElementById('winter'),
+  winterCount: document.getElementById('winter-count'),
+  winterStatus: document.getElementById('winter-status'),
+  winterDateRange: document.getElementById('winter-date-range'),
+  winterCheckinBtn: document.getElementById('winter-checkin-btn'),
+  winterResetBtn: document.getElementById('winter-reset-btn'),
+  winterMsg: document.getElementById('winter-msg'),
+  feb20Status: document.getElementById('feb20-status'),
+  feb20CheckinBtn: document.getElementById('feb20-checkin-btn'),
+  feb20Msg: document.getElementById('feb20-msg'),
   microList: document.getElementById('micro-list'),
   microMsg: document.getElementById('micro-msg'),
   matchBoard: document.getElementById('match-board'),
@@ -134,10 +151,12 @@ init();
 function init() {
   bindTabs();
   bindCheckin();
+  bindWinterProject();
   bindPractice();
   bindClassBoard();
   renderTasks();
   renderDashboard();
+  renderWinterProject();
   renderClassBoard();
   renderMicroLessons();
   resetMatchGame();
@@ -171,6 +190,10 @@ function normalizeState(raw) {
     wordPairsDone: Number.isFinite(safe.wordPairsDone) ? safe.wordPairsDone : 0,
     watchedLessons,
     checkinHistory,
+    winterProjectHistory:
+      safe.winterProjectHistory && typeof safe.winterProjectHistory === 'object' ? safe.winterProjectHistory : {},
+    specialProjectCheckins:
+      safe.specialProjectCheckins && typeof safe.specialProjectCheckins === 'object' ? safe.specialProjectCheckins : {},
     checkin
   };
 }
@@ -275,6 +298,71 @@ function bindCheckin() {
     renderDashboard();
     setFeedback(refs.checkinMsg, '演示模式：已勾选全部今日任务。', 'ok');
   });
+}
+
+function isInWinterWindow() {
+  const today = todayKey();
+  return today >= WINTER_PROJECT.start && today <= WINTER_PROJECT.end;
+}
+
+function bindWinterProject() {
+  if (!WINTER_PROJECT_ENABLED) {
+    refs.winterTab?.remove();
+    refs.winterPanel?.remove();
+    return;
+  }
+
+  refs.winterDateRange.textContent = `${WINTER_PROJECT.start.replaceAll('-', '.')} - ${WINTER_PROJECT.end.replaceAll('-', '.')}`;
+
+  refs.winterCheckinBtn?.addEventListener('click', () => {
+    if (!isInWinterWindow()) {
+      setFeedback(refs.winterMsg, '当前不在寒假项目周期内。', 'bad');
+      return;
+    }
+    const today = todayKey();
+    if (state.winterProjectHistory[today]) {
+      setFeedback(refs.winterMsg, '今天寒假项目已打卡。', 'ok');
+      return;
+    }
+    state.winterProjectHistory[today] = true;
+    saveState();
+    renderWinterProject();
+    setFeedback(refs.winterMsg, '寒假项目打卡成功。', 'ok');
+  });
+
+  refs.winterResetBtn?.addEventListener('click', () => {
+    const today = todayKey();
+    delete state.winterProjectHistory[today];
+    saveState();
+    renderWinterProject();
+    setFeedback(refs.winterMsg, '已重置今日寒假项目状态。', '');
+  });
+
+  refs.feb20CheckinBtn?.addEventListener('click', () => {
+    if (state.specialProjectCheckins[FEB20_PROJECT_KEY]) {
+      setFeedback(refs.feb20Msg, '2月20号项目已完成打卡。', 'ok');
+      return;
+    }
+    state.specialProjectCheckins[FEB20_PROJECT_KEY] = true;
+    saveState();
+    renderWinterProject();
+    setFeedback(refs.feb20Msg, '2月20号项目打卡成功。', 'ok');
+  });
+}
+
+function renderWinterProject() {
+  if (!WINTER_PROJECT_ENABLED || !refs.winterPanel) return;
+  const today = todayKey();
+  const total = Object.keys(state.winterProjectHistory).length;
+  const checked = Boolean(state.winterProjectHistory[today]);
+  const feb20Checked = Boolean(state.specialProjectCheckins[FEB20_PROJECT_KEY]);
+
+  refs.winterCount.textContent = String(total);
+  refs.winterStatus.textContent = checked ? '已打卡' : '未打卡';
+  refs.winterCheckinBtn.disabled = !isInWinterWindow();
+  refs.feb20Status.textContent = feb20Checked ? '已完成' : '未完成';
+  refs.feb20Status.classList.toggle('done', feb20Checked);
+  refs.feb20CheckinBtn.disabled = feb20Checked;
 }
 
 function bindPractice() {
